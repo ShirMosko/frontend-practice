@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway:100,300,400,700');
+
+:root {
+  --margin-default: 1rem;
+  --pkm-red: #c12026;
+  --pkm-black: #050608;
+  --pkm-yellow: #FFCA39;
+  --pkm-blue: #617EB9;
+  --pkm-shadow-blue: #C4CFE4;
+  --white: #fff;
+  --main-font: 'Raleway';
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: 0;
+}
+
+html,body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-image: url('src/images/pokeballbg.jpg');
+  background-size: 100vw 100vh;
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: var(--main-font), sans-serif;
+  font-size: 1rem;
+}
+
+* :focus {
+  outline: 1px solid var(--pkm-red)
+}
+
+.app {
+  display: flex;
+  justify-content: space-between;
+}
+
+.control-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 26%;
+  row-gap: 2em;
+}
+*,
+*:before,
+*::after{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+.popup{
+  background-color: rgb(211, 211, 211);
+  width: 450px;
+  padding: 30px 40px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.popup button{
+  display: block;
+  background-color: transparent;
+  font-size: 30px;
+  color:rgb(121, 121, 121);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  float:right;
+  
+}
+.popup h3{
+  margin: 20px;
+}
+
+.popup input{
+  margin: 11px;
+  padding: 2px;
+  border: 0px;
+  border-radius: 7px;
+  text-align: center;
+}
+
+a{
+  display: block;
+  width: 150px;
+  position: relative;
+  margin: auto;
+  text-align: center;
+  background-color: var(--pkm-red);
+  color: #fff;
+  padding: 5px 0;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.header {
+  width: 100%;
+  height: auto;
+}
+
+.header .logo {
+  width: inherit;
+}
+
+.inputControls {
+  display: flex;
+  justify-content: center;
+  gap: var(--margin-default);
+
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  row-gap: 2em;
+  font-size: 2em;
+}
+
+.cardsWrapper {
+  width: calc(100vw - 29%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardsContainer {
+
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 100px);
+  grid-template-rows: auto;
+  column-gap: 2em;
+  row-gap: 2em;
+  justify-content: center;  
+
+}
+
+.btnStartGame {
+  cursor: pointer;
+  background-color: var(--pkm-red);
+  color: var(--white);
+  padding: 17px;
+  transition: 0.3s;
+  animation: colorShift 3s infinite;
+  min-width: 73px;
+}
+
+.ddLevel {
+  padding: 16px;
+  background-color: var(--white);
+  color: var(--pkm-red);
+  font-size: medium;
+  text-align: center;
+}
+
+.ddLevel,
+.btnStartGame {
+  font: weight 700px;
+  border: 1px solid var(--pkm-black);
+  border-radius: 0.2rem;
+  font-family: cursive;
+}
+
+.label {
+  font-weight: 700;
+}
+
+.card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: all 0.2s linear;
+}
+
+.front,
+.back {
+  position: absolute;
+  backface-visibility: hidden;
+  border-radius: 5px;
+  box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, 0.5);
+  background-repeat: no-repeat;
+}
+
+.card,
+.back,
+.front {
+  width: 100px;
+  height: 100px;
+}
+
+.back {
+  background-color: var(--white);
+  background-size: contain;
+  background-position: center center;
+  transform: rotateY(180deg);
+}
+
+.front {
+  background-image: url('src/images/pokeball.png');
+  background-color: var(--white);
+
+  background-size: contain;
+  background-position: center center;
+}
+
+.flipped {
+  transform: rotateY(180deg);
+}
+
+#gameOverModal,
+#winModal {
+  display: none;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.gameOverWrapper {
+  margin-top: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gameWinWrapper {
+  width: 75%;
+  margin: 150px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 2rem;
+  color: var(--white);
+}
+
+.gameWinWrapper>* {
+  margin: var(--margin-default);
+}
+
+.imgWin {
+  animation: pump 2s infinite;
+}
+
+.imgGameOver {
+  animation: shake 0.2s infinite;
+}
+
+@keyframes colorShift {
+  0% {
+    background-color: var(--pkm-red);
+    color: var(--pkm-yellow);
+  }
+
+  50% {
+    background-color: var(--pkm-yellow);
+    color: var(--pkm-red);
+  }
+
+  100% {
+    background-color: var(--pkm-red);
+    color: var(--pkm-yellow);
+  }
+}
+
+@keyframes pump {
+  0% {
+    transform: scale(1.2)
+  }
+
+  50% {
+    transform: scale(0.9)
+  }
+
+  100% {
+    transform: scale(1.2)
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: rotate(5deg);
+  }
+
+  25% {
+    transform: rotate(-5deg)
+  }
+
+  50% {
+    transform: rotate(5deg);
+  }
+
+  100% {
+    transform: rotate(-5deg)
+  }
+}
+
+@media only screen and (max-width: 760px) {
+  body {
+    background-image: url('src/images/pokeballbg-vertical.jpg');
+    background-attachment: scroll;
+    background-color: var(--pkm-red);
+    /* min-width: 547px; */
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas:
+      'header inputControls stats'
+      'cardsContainer cardsContainer cardsContainer'
+      'cardsContainer cardsContainer cardsContainer'
+      'cardsContainer cardsContainer cardsContainer'
+  }
+
+  .app {
+    flex-direction: column;
+    align-items: flex-start;
+
+    height: 100%;
+  }
+
+  .control-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 25%;
+    align-items: center;
+    justify-content: space-evenly;
+    align-self: flex-start;
+  }
+
+  .cardsWrapper {
+    align-self: center;
+    height: 100%;
+  }
+  .cardsContainer {
+    grid-gap: 0.5rem;
+  }
+
+  .inputControls {
+    padding: 5px;
+  }
+
+  .stats {
+    display: block;
+  }
+
+  .stats>* {
+    padding: 0.25rem
+  }
+
+  .btnStartGame {
+    padding: 8px;
+  }
+
+  .ddLevel {
+    padding: 7px;
+  }
+
+}
+
+.matched {
+  opacity: 0.1;
+}

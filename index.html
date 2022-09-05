@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <title>Automatic Popup</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv
+    
+    ="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="styles.css">
+    <title>Memory Game</title>
+</head>
+
+<body>
+    <div class = "popup">
+        <button id = "close">&times;</button>
+        <h2>Welcom </h2>
+        <h3>Let's Start Pokemon Memory Game</h3>
+        <div> Enter player Name:</div>
+            <input type="text" id="fname" name="fname"><br><br>
+        <a href="#">Let's Go</a>
+    </div>
+    <script src = "script.js"></script>
+    <div class="app">
+        <div class="control-container">
+            <header class='header'><img class='logo' src='src/images/hero.png'></header>
+            <section class='inputControls'>
+                <select id='ddLevel' class='ddLevel'>
+          <option class='inputControls__dropdown' value=''>Choose Level</option>
+          <option value='4'>Novice - 4 cards</option>
+          <option value='8'>Beginner - 8 cards</option>
+          <option value='12'>Regular- 12 cards</option>
+          <option value='16'>Expert - 16 cards</option>
+          <option value='20'>Master- 20 cards</option>
+        </select>
+                <button id='btnStartGame' class='btnStartGame'>GO!</button>
+            </section>
+            <section class='stats'>
+                <div class='statsItem'>
+                    <label class='label'>Time: </label><span id='timeWrapper'>60s</span>
+                </div>
+                <div class='statsItem'>
+                    <label class='label'>Moves: </label><span id='movesWrapper'>0</span>
+                </div>
+                <div class='statsItem'>
+                    <label class='label'>Score: </label><span id='scoreWrapper'>0</span>
+                </div>
+            </section>
+        </div>
+        <div class="cardsWrapper">
+            <section id='cardsContainer' class='cardsContainer'></section>
+        </div>
+    </div>
+    <div id='gameOverModal'>
+        <div class='gameOverWrapper'>
+            <img class='imgGameOver' src="https://fontmeme.com/permalink/181121/d66ebf29676c9a452d4c2a3adcd8f4ed.png" alt="pokemon-font" border="0"></a>
+        </div>
+    </div>
+    <div id='winModal'>
+        <div class='gameWinWrapper'>
+            <img class='imgWin' src='https://fontmeme.com/permalink/181122/66425ca57b8d8f2cd6f804b3bd4599dd.png'>
+            <p class='scoreText'>Your Score is</p><span id='winScoreWrapper'></span>
+        </div>
+    </div>
+
+    <script crossorigin="anonymous">
+        (() => {
+            const consts = {
+                CARDS: {
+                    "cards": [{
+                        "id": 1,
+                        "url": "src/images/bulbasaur.png"
+                    }, {
+                        "id": 2,
+                        "url": "src/images/charizard.png"
+                    }, {
+                        "id": 3,
+                        "url": "src/images/dragonite.png"
+                    }, {
+                        "id": 4,
+                        "url": "src/images/eevee.png"
+                    }, {
+                        "id": 5,
+                        "url": "src/images/octilliary.png"
+                    }, {
+                        "id": 6,
+                        "url": "src/images/jigglypuff.png"
+                    }, {
+                        "id": 7,
+                        "url": "src/images/pikachu.png"
+                    }, {
+                        "id": 8,
+                        "url": "src/images/squirtle.png"
+                    }, {
+                        "id": 9,
+                        "url": "src/images/zapdos.png"
+                    }]
+                },
+                MIN_CARDS: 2,
+                SHORT_DELAY: 1000,
+                DELAY: 1000,
+                LONG_DELAY: 5000,
+            }
+            const randomIntBetween = (min, max) => {
+                return Math.floor((Math.random() * max) + min)
+            }
+
+            const randomNegPos = () => {
+                return 0.5 - Math.random()
+            }
+
+            class Card {
+                constructor(id, url, dataIndex) {
+                    this.id = id
+                    this.dataIndex = dataIndex
+                    this.isOpen = false
+                    this.matched = false
+                    this.url = url
+                }
+
+                equals(other) {
+                    return this.id === other.id && this.isOpen && other.isOpen && !this.matched && !other.matched && this.dataIndex !== other.dataIndex
+                }
+
+                flip() {
+                    this.isOpen = !this.isOpen
+                }
+            }
+
+            class Board {
+                constructor(size, cardsArray) {
+                    this._size = size
+                    this._cardsArray = cardsArray
+                    this._board = []
+                    this._guesses = 0
+                    this._score = 0
+                    this._openCard = null
+
+                    this._currentNumberOfMatches = 0
+                    this._allMatchesSize = size / 2
+                    this.openCards = [null, null]
+                }
+
+                get score() {
+                    this.calculateScore()
+                    return this._score <= 0 ? 0 : this._score
+                }
+
+                get guesses() {
+                    return this._guesses
+                }
+
+                get board() {
+                    return this._board
+                }
+
+                flipCard(position) {
+
+                    if (this._board.find(card => card.dataIndex === position).isOpen) {
+
+                        return
+                    }
+
+
+                    this._board.find(card => card.dataIndex === position).flip()
+
+                    if (this.openCards[0] === null) {
+                        this.openCards[0] = this.board.find(card => card.dataIndex === position)
+                    } else if (this.openCards[1] === null) {
+                        this.openCards[1] = this.board.find(card => card.dataIndex === position)
+                    }
+
+                    return true
+                }
+
+                checkMatch() {
+                    // if openCards is not full, return false
+                    if (this.openCards[1] === null) return false
+
+                    // if openCards is full:
+                    //  1. check if equal
+                    this._guesses++
+                        if (this.openCards[0].equals(this.openCards[1])) {
+                            this.openCards[0].matched = true
+                            this.openCards[1].matched = true
+                            this.openCards.fill(null)
+                            return true
+                        }
+                    this.openCards[0].flip()
+                    this.openCards[1].flip()
+                    this.openCards.fill(null)
+                    return false
+                        //      if equal -> match (return true), else flip both and return false 
+                }
+
+                fillBoard() {
+                    let index = 0
+                    while (this._board.length < this._size) {
+                        for (let card of this._cardsArray) {
+                            this._board.push(new Card(card.id, card.url))
+                            this._board.push(new Card(card.id, card.url))
+                            if (this._board.length === this._size) {
+                                break
+                            }
+                        }
+                    }
+                    this._shuffle()
+                    this._board.forEach((card, index) => card.dataIndex = index)
+
+                }
+
+                calculateScore() {
+                    let matches = 0
+                    for (let card of this._board) {
+                        if (card.matched) matches++
+                    }
+                    this._score = this._size * (matches / 2) - this._guesses
+                }
+
+                isGameWin() {
+                    if (this._board.every(card => card.matched)) {
+                        this.onWin()
+                    }
+                }
+
+                isMatch(card) {
+
+                    // check if there is an open card, if not, then set then opened first card
+                    if (this.openCards[0] === null) {
+
+                        this.openCards[0] = card
+
+                        // return 
+                    } else { // atleast one card is opened
+
+                        this._guesses++
+                            const openedCard = this.openCards[0]
+                        if (openedCard.id === card.id) { // check if current cards id is the same as the open card
+                            this._currentNumberOfMatches++
+                                if (this._currentNumberOfMatches === this._allMatchesSize) { //check if the game is won
+                                    this.onWin()
+                                }
+                        } else { // no match, and reset open card state
+                            this.openCards.fill(null)
+                        }
+                    }
+                }
+
+                _shuffle() {
+                    this._board.sort(randomNegPos) // Fisher-Yates Algorithm for unbiased permutation
+                }
+            }
+
+            let board
+            let timerHandle
+            const cardsContainer = document.getElementById('cardsContainer')
+            const btnStartGame = document.getElementById('btnStartGame')
+            const ddLevel = document.getElementById('ddLevel')
+            const timeWrapper = document.getElementById('timeWrapper')
+            const movesWrapper = document.getElementById('movesWrapper')
+            const scoreWrapper = document.getElementById('scoreWrapper')
+
+            const winModal = document.getElementById('winModal')
+            const winScoreWrapper = document.getElementById('winScoreWrapper')
+            const gameOverModal = document.getElementById('gameOverModal')
+
+
+            btnStartGame.onclick = () => {
+                if (!ddLevel.value) return
+                getCards()
+                startTimer()
+            }
+
+            function flipCard() {
+
+                const flipped = board.flipCard(parseInt(this.dataset.index))
+                if (!flipped) return
+
+
+                this.classList.toggle('flipped')
+                const isMatch = board.checkMatch()
+                if (isMatch) {
+                    board.onMatch()
+                    board.isGameWin()
+                } else {
+                    if (board.openCards[0] === null && board.openCards[1] === null) {
+                        board.onMiss()
+                    }
+                }
+            }
+
+            function getCards() {
+                createBoard(consts.CARDS.cards)
+            }
+
+            function createBoard(cardsArray) {
+                const numOfCards = randomIntBetween(consts.MIN_CARDS, cardsArray.length)
+                let chosenCards = cardsArray.slice(0, numOfCards)
+                chosenCards = chosenCards.map(function(card) {
+                    return new Card(card.id, card.url)
+                })
+
+                board = new Board(+ddLevel.value, chosenCards)
+
+                movesWrapper.innerHTML = board.guesses
+                scoreWrapper.innerText = board.score
+
+                board.onMatch = () => {
+                    let matchedArray = board.board.filter(card => card.matched)
+                    matchedArray.forEach(item => {
+                        document.querySelector(`[data-index="${item.dataIndex}"]`).removeEventListener('click', flipCard, true)
+                        setTimeout(function() {
+                            document.querySelector(`[data-index="${item.dataIndex}"]`).classList.add('matched')
+                        }, consts.SHORT_DELAY)
+                    })
+                    movesWrapper.innerHTML = board.guesses
+                    scoreWrapper.innerHTML = board.score
+
+                }
+
+                board.onMiss = () => {
+                    setTimeout(() => {
+                        let matchedArray = board.board.filter(card => !card.matched)
+                        matchedArray.forEach(card => {
+                            document.querySelector(`[data-index="${card.dataIndex}"]`).className = 'card'
+                        })
+                    }, consts.DELAY)
+                    movesWrapper.innerHTML = board.guesses
+                    scoreWrapper.innerHTML = board.score
+                }
+
+                board.onWin = () => {
+                    clearInterval(timerHandle)
+                    winScoreWrapper.innerText = board.score
+                    winModal.style.display = 'block'
+                    setTimeout(() => {
+                        winModal.style.display = 'none'
+                    }, consts.LONG_DELAY)
+                }
+
+                board.fillBoard()
+                renderBoard()
+            }
+
+            function renderBoard() {
+                const cardsContainer = document.getElementById('cardsContainer')
+                cardsContainer.innerHTML = ''
+
+                let cardIndex = 0
+                board._board.forEach(card => {
+
+
+                    const currentCardElm = document.createElement('div')
+                    currentCardElm.classList.add('card')
+                    currentCardElm.dataset.id = card.id
+                    currentCardElm.dataset.index = cardIndex++
+
+                        const currentCardBack = document.createElement('div')
+                    currentCardBack.classList.add('back')
+                    currentCardBack.style.backgroundImage = `url(${card.url})`
+
+                    const currentCardFront = document.createElement('div')
+                    currentCardFront.classList.add('front')
+
+                    currentCardElm.addEventListener('click', flipCard)
+
+                    currentCardElm.appendChild(currentCardBack)
+                    currentCardElm.appendChild(currentCardFront)
+
+                    cardsContainer.appendChild(currentCardElm)
+
+                })
+            }
+
+            function gameOver() {
+                gameOverModal.style.display = 'block'
+                setTimeout(() => {
+                    cardsContainer.innerHTML = ''
+                    gameOverModal.style.display = 'none'
+                }, consts.LONG_DELAY)
+            }
+
+            function startTimer() {
+                if (timerHandle) clearInterval(timerHandle)
+
+                let duration = 60
+                timerHandle = setInterval(() => {
+                    duration--
+                    if (duration === 0) {
+                        gameOver()
+                        clearInterval(timerHandle)
+                    }
+                    timeWrapper.innerHTML = `${duration}s`
+
+                }, consts.DELAY)
+            }
+        })();
+    </script>
+</body>
+
+</html>
