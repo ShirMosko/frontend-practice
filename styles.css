@@ -55,6 +55,7 @@ body {
   margin: 0;
   box-sizing: border-box;
 }
+
 .popup{
   background-color: rgb(211, 211, 211);
   width: 450px;
@@ -67,7 +68,7 @@ body {
   text-align: center;
 }
 
-.popup button{
+.popup .close{
   display: block;
   background-color: transparent;
   font-size: 30px;
@@ -76,6 +77,7 @@ body {
   outline: none;
   cursor: pointer;
   float:right;
+  transition: all 0.3s ease-out;
   
 }
 .popup h3{
@@ -90,7 +92,7 @@ body {
   text-align: center;
 }
 
-a{
+.popup .letsGo{
   display: block;
   width: 150px;
   position: relative;

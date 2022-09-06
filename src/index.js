@@ -15,7 +15,24 @@ const scoreWrapper = document.getElementById('scoreWrapper')
 const winModal = document.getElementById('winModal')
 const winScoreWrapper = document.getElementById('winScoreWrapper')
 const gameOverModal = document.getElementById('gameOverModal')
+const popup = document.querySelector('.popup');
+const close = document.querySelector('#close');
 
+
+window.onload = function(){
+  debugger;
+    setTimeout(function(){
+        popup.style.display = "block"
+    }, 2000)
+}
+
+close,addEventListener('click',()=>{
+    popup.style.display = "none";
+} )
+
+document.querySelector("#close").addEventListener("click", function(){
+    document.querySelector(".popup").style.display = "none";
+});
 
 btnStartGame.onclick = () => {
   if(!ddLevel.value) return
